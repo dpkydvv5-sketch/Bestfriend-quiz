@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best Friend Quiz</title>
+<style>
+  body {
+    margin:0;
+    padding:0;
+    font-family: 'Arial', sans-serif;
+    background: pink;
+    overflow: hidden;
+  }
+  .heart {
+    position: absolute;
+    color: red;
+    font-size: 50px;
+    animation: floatUp linear infinite;
+    opacity: 0.8;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(100vh) rotate(0deg); }
+    100% { transform: translateY(-10vh) rotate(360deg); }
+  }
+  .question-container {
+    position: relative;
+    width: 80%;
+    max-width: 600px;
+    margin: 50px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    display: none;
+    font-size: 20px;
+  }
+  .options button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid black;
+    background: #fff;
+    cursor: pointer;
+  }
+  .fullscreen-msg {
+    position: fixed;
+    top:0; left:0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,192,203,0.95);
+    display: flex;
+    justify-content:center;
+    align-items:center;
+    font-size: 40px;
+    color: red;
+    text-align:center;
+    flex-direction:column;
+    display:none;
+    animation: popIn 0.8s ease forwards;
+  }
+  @keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .error-popup {
+    position: fixed;
+    top:20%;
+    left:50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 2px solid red;
+    padding: 15px 25px;
+    font-size: 20px;
+    color: red;
+    display: none;
+    border-radius: 10px;
+    animation: shake 0.3s;
+  }
+  @keyframes shake {
+    0% { transform: translateX(-50%) translateY(0); }
+    25% { transform: translateX(-55%) translateY(0); }
+    50% { transform: translateX(-45%) translateY(0); }
+    75% { transform: translateX(-55%) translateY(0); }
+    100% { transform: translateX(-50%) translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating hearts -->
+<div id="hearts-container"></div>
+
+<!-- Questions -->
+<div id="q1" class="question-container">
+  <div>💖 Will you be my bestfriend? 🥰</div>
+  <div class="options">
+    <button onclick="nextQ(1,'A')">Yes 💕</button>
+    <button onclick="nextQ(1,'B')">A ❤️</button>
+    <button onclick="nextQ(1,'C')">Both 💓</button>
+  </div>
+</div>
+
+<div id="q2" class="question-container">
+  <div>🎉 Will we hang out every weekend? 😎</div>
+  <div class="options">
+    <button onclick="nextQ(2,'Yes')">Yes 😍</button>
+    <button onclick="nextQ(2,'No')">No 😅</button>
+  </div>
+</div>
+
+<div id="q3" class="question-container">
+  <div>🤗 Will you always be there for me? 💞</div>
+  <div class="options">
+    <button onclick="nextQ(3,'Yes')">Yes ❤️</button>
+    <button onclick="errorPopup(3)">No ❌</button>
+  </div>
+</div>
+
+<div id="q4" class="question-container">
+  <div>😜 We will annoy each other sometimes, right? 😂</div>
+  <div class="options">
+    <button onclick="nextQ(4,'Yes')">Yes 😎</button>
+    <button onclick="nextQ(4,'No')">No 🤪</button>
+  </div>
+</div>
+
+<div id="q5" class="question-container">
+  <div>🌟 Will you be my forever bestfriend? 💫</div>
+  <div class="options">
+    <button onclick="nextQ(5,'Yes')">Yes 💖</button>
+    <button onclick="errorPopup(5)">No ❌</button>
+  </div>
+</div>
+
+<!-- Appreciation / full screen messages -->
+<div id="fullscreen-msg" class="fullscreen-msg"></div>
+<div id="error-popup" class="error-popup">Error! Choose correct option.</div>
+
+<script>
+const heartsContainer = document.getElementById('hearts-container');
+const questions = ['q1','q2','q3','q4','q5'];
+const appreciationTexts = [
+  "You're amazing 💖✨",
+  "You're the best 🌟💞",
+  "You rock! 😍🔥",
+  "Fantastic! 💕💫",
+  "From today we are best friends! 🎉💖🥰"
+];
+
+// Generate multiple hearts
+function createHearts() {
+  for(let i=0;i<30;i++){
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.style.left = Math.random()*100 + 'vw';
+    heart.style.fontSize = 30+Math.random()*40 + 'px';
+    heart.style.animationDuration = 5 + Math.random()*5 + 's';
+    heart.innerHTML = '❤️';
+    heartsContainer.appendChild(heart);
+  }
+}
+
+// Show first question
+let currentQ = 0;
+function showQuestion(index){
+  document.getElementById(questions[index]).style.display='block';
+}
+
+function hideQuestion(index){
+  document.getElementById(questions[index]).style.display='none';
+}
+
+// Error popup for Q3 and Q5
+function errorPopup(q){
+  const popup = document.getElementById('error-popup');
+  popup.style.display='block';
+  setTimeout(()=>{popup.style.display='none';},1500);
+}
+
+// Fullscreen appreciation
+function showAppreciation(text,callback){
+  const msg = document.getElementById('fullscreen-msg');
+  msg.innerHTML = text;
+  msg.style.display='flex';
+  setTimeout(()=>{
+    msg.style.display='none';
+    if(callback) callback();
+  },2000);
+}
+
+// Move to next question
+function nextQ(qIndex,answer){
+  hideQuestion(qIndex-1);
+  showAppreciation(appreciationTexts[qIndex-1],()=>{
+    currentQ++;
+    if(currentQ<questions.length){
+      showQuestion(currentQ);
+    } else {
+      // Final screen
+      const msg = document.getElementById('fullscreen-msg');
+      msg.innerHTML = appreciationTexts[4] + " 🎉💖🥰";
+      msg.style.display='flex';
+    }
+  });
+}
+
+// Initialize
+createHearts();
+showQuestion(0);
+</script>
+
+</body>
+</html>
