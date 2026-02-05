@@ -85,16 +85,25 @@
     75% { transform: translateX(-55%) translateY(0); }
     100% { transform: translateX(-50%) translateY(0); }
   }
+  .copy-btn {
+    margin-top: 20px;
+    padding: 12px 25px;
+    font-size: 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: #ff69b4;
+    color: white;
+  }
 </style>
 </head>
 <body>
-
 <!-- Floating hearts -->
 <div id="hearts-container"></div>
 
 <!-- Questions -->
 <div id="q1" class="question-container">
-  <div>💖 Will you be my bestfriend? 🥰</div>
+  <div>💖 Will you be my foreever bestfriend? 🥰</div>
   <div class="options">
     <button onclick="nextQ(1,'A')">Yes 💕</button>
     <button onclick="nextQ(1,'B')">A ❤️</button>
@@ -103,10 +112,10 @@
 </div>
 
 <div id="q2" class="question-container">
-  <div>🎉 Will we hang out every weekend? 😎</div>
+  <div>🎉 If I annoy you sometimes, what will you do? 🤔🤗</div>
   <div class="options">
-    <button onclick="nextQ(2,'Yes')">Yes 😍</button>
-    <button onclick="nextQ(2,'No')">No 😅</button>
+    <button onclick="nextQ(2,'Yes')">stay anyway 😍</button>
+    <button onclick="nextQ(2,'No')">Annoy you back 😅😄</button>
   </div>
 </div>
 
@@ -127,10 +136,10 @@
 </div>
 
 <div id="q5" class="question-container">
-  <div>🌟 Will you be my forever bestfriend? 💫</div>
+  <div>🌟 So…can I proudly call you my bestfriend now? 😍🥰</div>
   <div class="options">
     <button onclick="nextQ(5,'Yes')">Yes 💖</button>
-    <button onclick="errorPopup(5)">No ❌</button>
+    <button onclick="errorPopup(5)">always 💫</button>
   </div>
 </div>
 
@@ -148,6 +157,18 @@ const appreciationTexts = [
   "Fantastic! 💕💫",
   "From today we are best friends! 🎉💖🥰"
 ];
+
+// Correct answers for scoring
+const correctAnswers = {
+  q1: ['A','B','C'],    // all options correct
+  q2: ['Yes'],          // stay anyway
+  q3: ['Yes'],          // only Yes
+  q4: ['Yes','No'],     // both correct
+  q5: ['Yes']           // only Yes
+};
+
+// Store user responses
+let userAnswers = {};
 
 // Generate multiple hearts
 function createHearts() {
@@ -167,7 +188,6 @@ let currentQ = 0;
 function showQuestion(index){
   document.getElementById(questions[index]).style.display='block';
 }
-
 function hideQuestion(index){
   document.getElementById(questions[index]).style.display='none';
 }
@@ -190,26 +210,51 @@ function showAppreciation(text,callback){
   },2000);
 }
 
-// Move to next question
-function nextQ(qIndex,answer){
+// Move to next question & record score
+function nextQ(qIndex, answer){
+  const qId = questions[qIndex-1];  // current question id
+  userAnswers[qId] = answer;        // record the answer
+
   hideQuestion(qIndex-1);
-  showAppreciation(appreciationTexts[qIndex-1],()=>{
+
+  // show appreciation
+  showAppreciation(appreciationTexts[qIndex-1], ()=>{
     currentQ++;
-    if(currentQ<questions.length){
+    if(currentQ < questions.length){
       showQuestion(currentQ);
     } else {
-      // Final screen
+      // Calculate score
+      let score = 0;
+      questions.forEach(q=>{
+        if(correctAnswers[q].includes(userAnswers[q])) score++;
+      });
+
+      // Show final score with copy button
       const msg = document.getElementById('fullscreen-msg');
-      msg.innerHTML = appreciationTexts[4] + " 🎉💖🥰";
-      msg.style.display='flex';
+      msg.innerHTML = `
+        🎉 Congratulations! You answered ${score}/${questions.length} correctly! 💖🥰
+        <button class="copy-btn" onclick="copyAnswers()">📋 Copy Your Answers</button>
+      `;
+      msg.style.display = 'flex';
     }
+  });
+}
+
+// Copy answers to clipboard
+function copyAnswers(){
+  let text = "Here are my answers:\n";
+  questions.forEach(q=>{
+    text += `${q}: ${userAnswers[q]}\n`;
+  });
+  navigator.clipboard.writeText(text).then(()=>{
+    alert("✅ Answers copied! You can send them now.");
   });
 }
 
 // Initialize
 createHearts();
 showQuestion(0);
-</script>
 
+</script>
 </body>
 </html>
